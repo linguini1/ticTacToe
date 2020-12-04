@@ -7,9 +7,10 @@ import random
 # Difficulty easy by default
 difficulty = "1"
 
-# Score variables
+# Global variables
 pOneScore = 0
 pTwoScore = 0
+lastMove = (0, 0)
 
 # PvP or PvC selection
 while True:
@@ -55,7 +56,6 @@ while True:
         break
 
 # Initial instructions
-
 if PvP:  # Changing p1 and p2 names based on who is the opponent
     pOne = "Player 1"
     pTwo = "Player 2"
@@ -95,7 +95,7 @@ def board_printer(board):
     print("")  # Ending with a line break
 
 
-# Function for taking moves
+# Function for making moves
 def make_move(player, board):
 
     # Getting player name for customization
@@ -107,7 +107,7 @@ def make_move(player, board):
     # Getting coordinates
     while True:
 
-        coOrds = input(f"Coordinates for {name}'s move in form <row><column>: ")
+        coOrds = input(f"Coordinates for {name}'s move: ")
 
         if coOrds not in ['11', '12', '13',  # Coordinates must be one of these values
                           '21', '22', '23',
@@ -117,6 +117,8 @@ def make_move(player, board):
             # Formatting coordinates
             row = int(coOrds[0]) - 1  # Makes this start at index 0
             column = int(coOrds[1]) - 1  # Makes this start at index 0
+            global lastMove
+            lastMove = (row, column)  # Recording last move
 
             # Checking if the spot is already full
             if board[row][column] != " ":
@@ -160,8 +162,93 @@ def computer_move(diff, board):
         board_printer(board)
 
     # Medium
-    if diff == "2":
-        pass
+    elif diff == "2":
+
+        # Assuming no spot was selected
+        spotSelected = False
+
+        # Trying to find an open spot in the diagonal
+        leftDiagonal = [(0, 0), (1, 1), (2, 2)]  # Left diagonal coordinates
+        rightDiagonal = [(0, 2), (1, 1), (2, 0)]  # Right diagonal coordinates
+
+        if lastMove in leftDiagonal:  # If the last move looks like a left diagonal play
+
+            for spot in leftDiagonal:  # Occupying a remaining left diagonal space
+                if board[spot[0]][spot[1]] == " ":  # Checking to make sure space is empty
+                    board[spot[0]][spot[1]] = "O"  # Filling space
+                    coOrds = spot  # Recording the final spot
+                    spotSelected = True  # Recording that a spot was chosen
+                    break
+                else:
+                    spotSelected = False
+
+        elif lastMove in rightDiagonal:  # If the last move looks like a right diagonal play
+
+            for spot in rightDiagonal:  # Occupying a remaining right diagonal space
+                if board[spot[0]][spot[1]] == " ":
+                    board[spot[0]][spot[1]] = "O"
+                    coOrds = spot
+                    spotSelected = True
+                    break
+                else:
+                    spotSelected = False
+
+        # Diagonal spot not possible
+        if not spotSelected:
+
+            # Selecting whether to occupy a space in the same row or column
+            rowOrColumn = random.randint(1, 2)
+
+            if rowOrColumn == 1:  # Row
+
+                for index in range(3):  # Looping through indexes from 0-2
+                    # Trying to find an open spot in the same row
+                    try:
+                        if board[lastMove[0]][lastMove[1] + index] == " ":
+                            board[lastMove[0]][lastMove[1] + index] = "O"
+                            spotSelected = True
+                            coOrds = (lastMove[0], lastMove[1] + index)
+                            break
+                        else:
+                            pass
+                    except IndexError:
+                        pass
+
+            else:  # Column
+
+                for index in range(3):  # Looping through indexes from 0-2
+                    # Trying to find an open spot in the same column
+                    try:
+                        if board[lastMove[0] + index][lastMove[1]] == " ":
+                            board[lastMove[0] + index][lastMove[1]] = "O"
+                            spotSelected = True
+                            coOrds = (lastMove[0] + index, lastMove[1])
+                            break
+                        else:
+                            pass
+                    except IndexError:
+                        pass
+
+        # Neither diagonal nor row/column worked
+        if not spotSelected:
+
+            # Looping until computer selects a valid move
+            while True:
+                # Randomly selecting a coordinate
+                coOrds = random.choice([[0, 0], [0, 1], [0, 2],
+                                        [1, 0], [1, 1], [1, 2],
+                                        [2, 0], [2, 1], [2, 2]])
+
+                # Checking if space is filled
+                if board[coOrds[0]][coOrds[1]] != " ":
+                    pass
+                else:
+                    board[coOrds[0]][coOrds[1]] = "O"
+                    break
+
+        # Printing results
+        print(f"The Computer selected the spot {coOrds[0] + 1}{coOrds[1] + 1}.")
+        board_printer(board)
 
     # Hard
     else:
@@ -222,15 +309,20 @@ while roundCount > 0:
                  [" ", " ", " "],
                  [" ", " ", " "]]
 
+    # Dividing line
+    for _ in range(100):
+        print("-", end="")
+    print("\n")  # 2 new lines
+
     # Printing the start board
-    print("Game has started!")
+    print(f"Game {roundCount} has started!")  # Round number
     board_printer(gameBoard)
 
     # Max moves variable to determine when game must stop
     maxMoves = 9
 
     # Getting moves
-    while maxMoves >= 0:
+    while maxMoves > 0:
 
         # Player two is second, so they will always play when the number of moves left is even
         if maxMoves % 2 == 0:
@@ -256,7 +348,7 @@ while roundCount > 0:
             pass  # Continues game with no win
 
     # If game ends as a tie
-    if maxMoves < 0:
+    if maxMoves == 0:
         print("This game was a tie!\n")
         print("Score Update")
         print(f"{pOne}: {pOneScore}")  # Printing p1 score
