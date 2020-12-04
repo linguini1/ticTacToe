@@ -170,28 +170,20 @@ def computer_move(diff, board):
         # Trying to find an open spot in the diagonal
         leftDiagonal = [(0, 0), (1, 1), (2, 2)]  # Left diagonal coordinates
         rightDiagonal = [(0, 2), (1, 1), (2, 0)]  # Right diagonal coordinates
+        diagonals = [leftDiagonal, rightDiagonal]
 
-        if lastMove in leftDiagonal:  # If the last move looks like a left diagonal play
+        for _ in range(2):
 
-            for spot in leftDiagonal:  # Occupying a remaining left diagonal space
-                if board[spot[0]][spot[1]] == " ":  # Checking to make sure space is empty
-                    board[spot[0]][spot[1]] = "O"  # Filling space
-                    coOrds = spot  # Recording the final spot
-                    spotSelected = True  # Recording that a spot was chosen
-                    break
-                else:
-                    spotSelected = False
+            if lastMove in diagonals[_] and not spotSelected:  # If the last move looks like a diagonal play
 
-        elif lastMove in rightDiagonal:  # If the last move looks like a right diagonal play
-
-            for spot in rightDiagonal:  # Occupying a remaining right diagonal space
-                if board[spot[0]][spot[1]] == " ":
-                    board[spot[0]][spot[1]] = "O"
-                    coOrds = spot
-                    spotSelected = True
-                    break
-                else:
-                    spotSelected = False
+                for spot in leftDiagonal:  # Occupying a remaining diagonal space
+                    if board[spot[0]][spot[1]] == " ":  # Checking to make sure space is empty
+                        board[spot[0]][spot[1]] = "O"  # Filling space
+                        coOrds = spot  # Recording the final spot
+                        spotSelected = True  # Recording that a spot was chosen
+                        break
+                    else:
+                        spotSelected = False
 
         # Diagonal spot not possible
         if not spotSelected:
@@ -199,60 +191,148 @@ def computer_move(diff, board):
             # Selecting whether to occupy a space in the same row or column
             rowOrColumn = random.randint(1, 2)
 
-            if rowOrColumn == 1:  # Row
+            for index in range(3):  # Looping through indexes from 0-2
 
-                for index in range(3):  # Looping through indexes from 0-2
-                    # Trying to find an open spot in the same row
-                    try:
-                        if board[lastMove[0]][lastMove[1] + index] == " ":
-                            board[lastMove[0]][lastMove[1] + index] = "O"
-                            spotSelected = True
-                            coOrds = (lastMove[0], lastMove[1] + index)
-                            break
-                        else:
-                            pass
-                    except IndexError:
+                if rowOrColumn == 1:  # Row
+                    row = lastMove[0]
+                    column = lastMove[1] + index
+
+                else:  # Column
+                    row = lastMove[0] + index
+                    column = lastMove[1]
+
+                # Trying to find an open spot in the same line
+                try:
+                    if board[row][column] == " ":
+                        board[row][column] = "O"
+                        spotSelected = True
+                        coOrds = (row, column)
+                        break
+                    else:
                         pass
-
-            else:  # Column
-
-                for index in range(3):  # Looping through indexes from 0-2
-                    # Trying to find an open spot in the same column
-                    try:
-                        if board[lastMove[0] + index][lastMove[1]] == " ":
-                            board[lastMove[0] + index][lastMove[1]] = "O"
-                            spotSelected = True
-                            coOrds = (lastMove[0] + index, lastMove[1])
-                            break
-                        else:
-                            pass
-                    except IndexError:
-                        pass
+                except IndexError:
+                    pass
 
         # Neither diagonal nor row/column worked
         if not spotSelected:
-
-            # Looping until computer selects a valid move
-            while True:
-                # Randomly selecting a coordinate
-                coOrds = random.choice([[0, 0], [0, 1], [0, 2],
-                                        [1, 0], [1, 1], [1, 2],
-                                        [2, 0], [2, 1], [2, 2]])
-
-                # Checking if space is filled
-                if board[coOrds[0]][coOrds[1]] != " ":
-                    pass
-                else:
-                    board[coOrds[0]][coOrds[1]] = "O"
-                    break
-
-        # Printing results
-        print(f"The Computer selected the spot {coOrds[0] + 1}{coOrds[1] + 1}.")
-        board_printer(board)
+            computer_move("1", board)
+        else:
+            # Printing results
+            print(f"The Computer selected the spot {coOrds[0] + 1}{coOrds[1] + 1}.")
+            board_printer(board)
 
     # Hard
     else:
-        pass
+
+        # The crucial first move
+        if maxMoves == 8:
+
+            if lastMove == (1, 1):  # If center space is chosen, pick a corner
+                coOrds = (0, 2)
+                board[0][2] = "O"
+                spotFound = True
+
+            else:  # If any other space is chosen, pick center
+                coOrds = (1, 1)
+                board[1][1] = "O"
+                spotFound = True
+
+        # After the first move
+        else:
+
+            # Checking for two Xs/Os in a line to block or get win
+            spotFound = False  # Assuming no spot found
+
+            # Arrays for O count
+            oCountRows = [0, 0, 0]
+            oCountColumns = [0, 0, 0]
+            oCountDiagonals = [0, 0]
+
+            # Arrays for X count
+            xCountRows = [0, 0, 0]
+            xCountColumns = [0, 0, 0]
+            xCountDiagonals = [0, 0]
+
+            # Diagonal coordinates
+            leftDiagonal = [(0, 0), (1, 1), (2, 2)]
+            rightDiagonal = [(0, 2), (1, 1), (2, 0)]
+            diagonals = [leftDiagonal, rightDiagonal]
+
+            # Actually counting Xs/Os
+
+            for _ in range(2):  # Starting to check for wins with Os, and then block the Xs as a second priority
+
+                if _ == 0:  # For Os
+                    rowCount = oCountRows
+                    columnCount = oCountColumns
+                    diagonalCount = oCountDiagonals
+                    character = "O"
+                else:  # For Xs
+                    rowCount = xCountRows
+                    columnCount = xCountColumns
+                    diagonalCount = xCountDiagonals
+                    character = "X"
+
+                # Counting characters in rows
+                for row in range(3):
+                    for column in board[row]:
+                        if column == character:
+                            rowCount[row] += 1
+
+                # Counting characters in columns
+                for row in range(3):
+                    for column in range(3):
+                        if board[column][row] == character:
+                            columnCount[row] += 1
+
+                # Counting characters in diagonals
+                for _ in range(2):  # 0 = left diagonal, 1 = right diagonal | loops through both
+                    for coSet in diagonals[_]:
+                        if board[coSet[0]][coSet[1]] == character:
+                            diagonalCount[_] += 1
+
+                # Filling spaces
+
+                # Filling row if there's 2 Os
+                for row in range(3):  # Each row
+                    if rowCount[row] == 2 and not spotFound:  # If there's 2 Xs/Os and no spot has been filled yet
+                        for column in range(3):  # Each column of the row
+
+                            if board[row][column] == " ":  # If there's an empty space
+                                board[row][column] = "O"  # Occupy it
+                                coOrds = (row, column)  # Record move
+                                spotFound = True  # Spot has been found
+                                break  # We're done
+
+                # Filling column if there's 2 Xs
+                for column in range(3):  # Each column
+                    if columnCount[column] == 2 and not spotFound:  # If there's 2 Xs/Os and no spot has been filled yet
+                        for row in range(3):  # Each row of the column
+
+                            if board[row][column] == " ":  # If there's an empty spot
+                                board[row][column] = "O"  # Occupy it
+                                coOrds = (row, column)  # Record move
+                                spotFound = True  # Spot has been found
+                                break  # We're done
+
+                # Filling diagonal if there's 2 Os
+                for index in range(2):  # Selecting left diagonal (0) or right diagonal (1)
+
+                    if diagonalCount[index] == 2 and not spotFound:  # If there's 2 Xs/Os and we haven't found a spot
+                        for coSet in diagonals[index]:  # For coordinates in the selected diagonal
+
+                            if board[coSet[0]][coSet[1]] == " ":  # If there's an empty space
+                                board[coSet[0]][coSet[1]] = "O"  # Occupy it
+                                coOrds = (coSet[0], coSet[1])  # Record move
+                                spotFound = True  # Spot has been found
+                                break  # We're done
+
+        if not spotFound:
+            computer_move("2", board)
+        else:
+            # Printing results
+            print(f"The Computer selected the spot {coOrds[0] + 1}{coOrds[1] + 1}.")
+            board_printer(board)
 
 
 # Logic for detecting win
