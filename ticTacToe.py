@@ -11,6 +11,8 @@ difficulty = "1"
 pOneScore = 0
 pTwoScore = 0
 lastMove = (0, 0)
+roundCount = 3
+scoreCap = 2
 
 # PvP or PvC selection
 while True:
@@ -40,21 +42,6 @@ while True:
     else:
         print("You must select option 1 or option 2.")  # Wrong input, try again
 
-# How many rounds
-while True:
-
-    roundCount = input("Number of rounds you want to play: ")
-
-    try:
-        roundCount = int(roundCount)  # Converting to an integer so the game logic works
-    except ValueError:  # User gave a non-integer input
-        print("You must select a valid integer!")
-
-    if roundCount < 1:
-        print("You need a number greater than zero, genius!")  # User gave an integer less than one
-    else:
-        break
-
 # Initial instructions
 if PvP:  # Changing p1 and p2 names based on who is the opponent
     pOne = "Player 1"
@@ -68,9 +55,9 @@ print(f"""
 {pTwo} will use the letter O.
 
 Each column corresponds to a number. Input your numbers together with no spaces (12, 32, 23, etc.).
-                                        
+
                                            1   2   3
-                                        
+
                                      1   | X | O | X |
                                          -------------
                                      2   | O | X | O |
@@ -78,7 +65,55 @@ Each column corresponds to a number. Input your numbers together with no spaces 
                                      3   | X | O | X |
 
 For example, there is an X at spot 11, 13, 22, 31 and 33.
+
+The default rules use a game of {roundCount} rounds and {scoreCap} victories to win.
 """)
+
+# Rule selection
+while True:
+
+    changeRules = input("Use the default rules (1) or set custom rules (2): ")
+
+    if changeRules not in ["1", "2"]:  # Invalid selection
+        print("Pick option 1 or 2.")
+
+    else:  # Valid selection
+
+        if changeRules == "1":  # Keep the default rules
+            break
+
+        else:  # Change rules
+            while True:  # Looping for input
+
+                roundCount = input("Number of rounds (must be odd): ")
+
+                try:
+                    roundCount = int(roundCount)  # Attempt to convert input to integer
+
+                    if roundCount <= 0:  # Zero or less
+                        print("Number of rounds must be above 0!")
+
+                    if roundCount % 2 == 0:  # Even
+                        print("Number of rounds must be odd!")
+
+                    else:  # Odd
+                        scoreCap = round(roundCount / 2 + 0.5)
+
+                        # Singular or plural depending on score cap
+                        if scoreCap > 1:
+                            victory = "victories"
+                        else:
+                            victory = "victory"
+
+                        # Printing user set rules
+                        print(f"Your game will have {roundCount} rounds "
+                              f"and require {scoreCap} {victory} to win.")
+                        break
+
+                except ValueError:  # User didn't give an integer
+                    print("You must input an integer!")
+
+            break
 
 
 # Function for printing board
@@ -382,7 +417,7 @@ def win_detect(board):
 
 
 # While loop to keep the game going for the number of rounds specified
-while roundCount > 0:
+while roundCount > 0 and pOneScore < scoreCap and pTwoScore < scoreCap:
 
     # Initializing empty board for each new round
     gameBoard = [[" ", " ", " "],
