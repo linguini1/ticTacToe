@@ -3,6 +3,7 @@
 
 # Imports
 import random
+import time
 
 # Difficulty easy by default
 difficulty = "1"
@@ -128,6 +129,19 @@ def board_printer(board):
         print("|\n-------------")  # Ending row with the final vertical line and printing the last horizontal bar
 
     print("")  # Ending with a line break
+
+
+# Function for animation
+def play_animation(frames):
+
+    # Animation while player registers the computer's winning move
+    index = 0  # Indexing variable for tracking frames
+    animation = ["| Loading...", "/ Loading...", "- Loading...", "\\ Loading..."]  # Actual animation
+
+    while index < frames:  # 0.1s x frames = # of seconds
+        print(animation[index % len(animation)], end="\r")  # Printing next animation frame based on cycle
+        index += 1  # Increasing index
+        time.sleep(0.1)  # Waiting 0.1 seconds before next frame
 
 
 # Function for making moves
@@ -363,7 +377,7 @@ def computer_move(diff, board):
                                 break  # We're done
 
         if not spotFound:
-            computer_move("2", board)
+            computer_move("1", board)
         else:
             # Printing results
             print(f"The Computer selected the spot {coOrds[0] + 1}{coOrds[1] + 1}.")
@@ -416,6 +430,9 @@ def win_detect(board):
     return win
 
 
+# Setting originalRoundCount equal to the original roundCount selected by user
+originalRoundCount = roundCount
+
 # While loop to keep the game going for the number of rounds specified
 while roundCount > 0 and pOneScore < scoreCap and pTwoScore < scoreCap:
 
@@ -430,7 +447,7 @@ while roundCount > 0 and pOneScore < scoreCap and pTwoScore < scoreCap:
     print("\n")  # 2 new lines
 
     # Printing the start board
-    print(f"Game {roundCount} has started!")  # Round number
+    print(f"Game {originalRoundCount + 1 - roundCount} has started!")  # Round number
     board_printer(gameBoard)
 
     # Max moves variable to determine when game must stop
@@ -455,6 +472,7 @@ while roundCount > 0 and pOneScore < scoreCap and pTwoScore < scoreCap:
 
         # Checking for winner
         if win_detect(gameBoard):
+            play_animation(30)
             print("Score Update")
             print(f"{pOne}: {pOneScore}")  # Printing p1 score
             print(f"{pTwo}: {pTwoScore}\n")  # Printing p2 score
@@ -464,6 +482,7 @@ while roundCount > 0 and pOneScore < scoreCap and pTwoScore < scoreCap:
 
     # If game ends as a tie
     if maxMoves == 0:
+        play_animation(30)
         print("This game was a tie!\n")
         print("Score Update")
         print(f"{pOne}: {pOneScore}")  # Printing p1 score
