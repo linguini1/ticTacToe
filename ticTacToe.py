@@ -56,7 +56,8 @@ print(f"""
 {pOne} will use the letter X.
 {pTwo} will use the letter O.
 
-Each column corresponds to a number. Input your numbers together with no spaces (12, 32, 23, etc.).
+Each row and column corresponds to a number.
+Input your numbers in the format [row][column] together with no spaces (12, 32, 23, etc.)
 
                                            1   2   3
 
@@ -571,6 +572,8 @@ print(f"{pTwo}: {pTwoScore}\n")
 # Checking for winner overall
 if pOneScore > pTwoScore:
     finalWinner = pOne  # p1 wins
+elif pOneScore == pTwoScore:
+    finalWinner = "no one because the game ended in a draw"  # Draw
 else:
     finalWinner = pTwo  # p2 wins
 
