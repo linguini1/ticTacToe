@@ -12,6 +12,7 @@ difficulty = "1"
 pOneScore = 0
 pTwoScore = 0
 lastMove = (0, 0)
+lastCompMove = (0, 0)
 roundCount = 3
 scoreCap = 2
 
@@ -189,6 +190,9 @@ def make_move(player, board):
 # Function for AI moves
 def computer_move(diff, board):
 
+    # Last computer move variable
+    global lastCompMove
+
     # Easy
     if diff == "1":
 
@@ -208,6 +212,7 @@ def computer_move(diff, board):
 
         # Printing results of move
         print(f"The Computer selected the spot {coOrds[0] + 1}{coOrds[1] + 1}.")
+        lastCompMove = coOrds  # Saving last computer move
         board_printer(board)
 
     # Medium
@@ -268,6 +273,7 @@ def computer_move(diff, board):
         else:
             # Printing results
             print(f"The Computer selected the spot {coOrds[0] + 1}{coOrds[1] + 1}.")
+            lastCompMove = coOrds  # Saving last computer move
             board_printer(board)
 
     # Hard
@@ -376,9 +382,11 @@ def computer_move(diff, board):
                                 spotFound = True  # Spot has been found
                                 break  # We're done
 
-        if not spotFound:  # If a move isn't made, it uses the random logic to complete the move
+        if not spotFound:  # If a move still isn't made, it checks to do a corner block
 
-            for spot in [(0, 0), (0, 2), (2, 0), (2, 2)]:  # All corner spaces
+            corners = [(0, 0), (0, 2), (2, 0), (2, 2)]  # Corner coordinates
+
+            for spot in corners:  # All corner spaces
 
                 xFoundRow = False  # X in row boolean reset to false for every iteration
                 xFoundColumn = False  # X in column boolean reset to false for every iteration
@@ -391,11 +399,52 @@ def computer_move(diff, board):
                     if board[_][spot[0]] == "X" and spot[0] != _:  # X found in the column of corner space
                         xFoundColumn = True
 
-                if xFoundRow and xFoundColumn and board[spot[0]][spot[1]] == " ":  # X in lines that intersect at corner
+                # Tracking Os in the center row and column
+                oCountCenterRow = 0
+                oCountCenterColumn = 0
+
+                # Don't skip the corner block
+                skip = False
+
+                # Counting Os in the center rows and columns
+                for _ in range(3):  # Iterating coordinates
+
+                    if board[1][_] == "O":  # Rows
+                        oCountCenterRow += 1
+
+                    if board[_][1] == "O":  # Columns
+                        oCountCenterColumn += 1
+
+                if oCountCenterColumn == 2 or oCountCenterRow == 2:  # If win scenario possible, skip corner block
+                    skip = True  # This sends us to the next part of the algorithm which creates an inevitable win
+
+                if lastMove in corners:  # This avoids the triple corner trap
+                    skip = True
+
+                # Condition to save space for next if statement
+                condition = xFoundRow and xFoundColumn and not skip and board[spot[0]][spot[1]] == " "
+
+                if condition:  # X found in lines that intersect at specified corner, and win scenario set-up impossible
                     board[spot[0]][spot[1]] = "O"  # Place an O
                     spotFound = True  # Spot has been found
                     coOrds = (spot[0], spot[1])  # Record coordinates
                     break  # Stop searching
+
+        if not spotFound:  # If move still not made, it checks to set up a win scenario
+
+            for _ in range(3):
+
+                if board[lastCompMove[0]][_] == " ":  # If there's a space in the row
+                    board[lastCompMove[0]][_] = "O"
+                    spotFound = True
+                    coOrds = (lastCompMove[0], _)
+                    break
+
+                if board[_][lastCompMove[1]] == " ":  # If there's a space in the column
+                    board[_][lastCompMove[1]] = "O"
+                    spotFound = True
+                    coOrds = (_, lastCompMove[1])
+                    break
 
         if not spotFound:  # If none of the above works, use the medium difficulty algorithm
             computer_move("2", board)
@@ -403,6 +452,7 @@ def computer_move(diff, board):
         else:  # Printing the results only if the hard mode HAS found a spot in order to avoid recursive printing
             # Printing results
             print(f"The Computer selected the spot {coOrds[0] + 1}{coOrds[1] + 1}.")
+            lastCompMove = coOrds  # Saving last computer move
             board_printer(board)
 
 
