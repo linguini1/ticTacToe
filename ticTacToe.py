@@ -376,9 +376,31 @@ def computer_move(diff, board):
                                 spotFound = True  # Spot has been found
                                 break  # We're done
 
-        if not spotFound:
-            computer_move("1", board)
-        else:
+        if not spotFound:  # If a move isn't made, it uses the random logic to complete the move
+
+            for spot in [(0, 0), (0, 2), (2, 0), (2, 2)]:  # All corner spaces
+
+                xFoundRow = False  # X in row boolean reset to false for every iteration
+                xFoundColumn = False  # X in column boolean reset to false for every iteration
+
+                for _ in range(3):  # Coordinates from 0-2 for iterating
+
+                    if board[spot[0]][_] == "X" and spot[0] != _:  # X found in the row of corner space
+                        xFoundRow = True
+
+                    if board[_][spot[0]] == "X" and spot[0] != _:  # X found in the column of corner space
+                        xFoundColumn = True
+
+                if xFoundRow and xFoundColumn and board[spot[0]][spot[1]] == " ":  # X in lines that intersect at corner
+                    board[spot[0]][spot[1]] = "O"  # Place an O
+                    spotFound = True  # Spot has been found
+                    coOrds = (spot[0], spot[1])  # Record coordinates
+                    break  # Stop searching
+
+        if not spotFound:  # If none of the above works, use the medium difficulty algorithm
+            computer_move("2", board)
+
+        else:  # Printing the results only if the hard mode HAS found a spot in order to avoid recursive printing
             # Printing results
             print(f"The Computer selected the spot {coOrds[0] + 1}{coOrds[1] + 1}.")
             board_printer(board)
