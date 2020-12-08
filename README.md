@@ -25,16 +25,16 @@ tally is shown, and the "ultimate winner" announced.
 
 ## How it works
 
-###Easy Mode
+<h4>Easy Mode</h4>
 The computer randomly selects a spot on the board and fills it.
 
-###Medium Mode
+<h4>Medium Mode</h4>
 The computer will look at the player's last move, and place an O in the same row or column as the last X. It randomly 
 selects whether to place an O in the column or the row. 
 
 If it's not possible to do either, the algorithm will recursively call the easy difficulty mode to make a move.
 
-###Hard Mode
+<h4>Hard Mode</h4>
 The computer will take the center space on its first move, and if the center is already occupied, it takes a corner space.
 
 Following the first move, the algorithm has a priority list of moves. First it checks for two Xs in a row, column, or diagonal
