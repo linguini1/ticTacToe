@@ -1,6 +1,6 @@
 # Tic Tac Toe v2.0 (ticTacToe.py)
 
-# How to play
+## How to play
 There are two modes to this game: PvP and PvC. You can choose between these modes at the beginning of the game.
 
 If you select PvP, you and the other player will share the keyboard to make moves. If you select PvC, there are three
@@ -15,7 +15,7 @@ The rounds function as a competition of "best of", where one player only has to 
 ultimate victory. The default mode uses a best of 3 game format, but you can also set the number of rounds you want to play at 
 the game's start. You can only choose an odd number of rounds in order to comply with the "best of" format.
 
-# Display
+## Display
 After each round, the program will announce the winner and provide a short loading animation for the user to study the board.
 This is because there's no strikethrough animation when a player wins, so the winning line may not be as clear, especially
 when the computer is victorious because its plays are instant.
@@ -23,18 +23,18 @@ when the computer is victorious because its plays are instant.
 After the pause, a score update is displayed before starting the next round. After all the rounds are completed, a final
 tally is shown, and the "ultimate winner" announced.
 
-# How it works
+## How it works
 
-##Easy Mode
+###Easy Mode
 The computer randomly selects a spot on the board and fills it.
 
-##Medium Mode
+###Medium Mode
 The computer will look at the player's last move, and place an O in the same row or column as the last X. It randomly 
 selects whether to place an O in the column or the row. 
 
 If it's not possible to do either, the algorithm will recursively call the easy difficulty mode to make a move.
 
-##Hard Mode
+###Hard Mode
 The computer will take the center space on its first move, and if the center is already occupied, it takes a corner space.
 
 Following the first move, the algorithm has a priority list of moves. First it checks for two Xs in a row, column, or diagonal
@@ -57,14 +57,15 @@ skipped.
       Second move (computer should block here before the final move)
 
 However, if the last player move was in a corner spot, the algorithm will skip the above step and move on to the next 
-step below, avoiding the triple corner trap which looks like this:
+step below, placing an O next to its previous move, forcing X to block and thus avoiding the triple corner trap which
+looks like this:
 
 <!-- language: lang-none -->
     |   |   | X |  <-- First move
     -------------
-    |   |   |   |
+    | A | O |   |
     -------------
-    | X |   | X |  <-- Final move (computer should block here after the second move)
+    | X |   | X |  <-- Final move (computer should anticipate this and place an O in space A)
       ^
       |
     Second move
