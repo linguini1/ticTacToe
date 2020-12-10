@@ -31,7 +31,7 @@ while True:
         # Difficulty selection
         while True:
 
-            difficulty = input("Select easy (1), medium (2) or hard (3) mode: ")
+            difficulty = input("Select easy (1), medium (2) or impossible (3) mode: ")
 
             if difficulty not in ["1", "2", "3"]:  # Must be valid option
                 print("You must select option 1, 2 or 3.")
@@ -191,6 +191,92 @@ def make_move(player, board):
 # Function for AI moves
 def computer_move(diff, board):
 
+    # Finding Xs and Os in a line function, for blocking or getting a winning line
+    def block_and_win():
+
+        # Arrays for O count
+        oCountRows = [0, 0, 0]
+        oCountColumns = [0, 0, 0]
+        oCountDiagonals = [0, 0]
+
+        # Arrays for X count
+        xCountRows = [0, 0, 0]
+        xCountColumns = [0, 0, 0]
+        xCountDiagonals = [0, 0]
+
+        # Diagonal coordinates
+        leftDiagonal = [(0, 0), (1, 1), (2, 2)]
+        rightDiagonal = [(0, 2), (1, 1), (2, 0)]
+        diagonals = [leftDiagonal, rightDiagonal]
+
+        # Actually counting Xs/Os
+
+        for _ in range(2):  # Starting to check for wins with Os, and then block the Xs as a second priority
+
+            if _ == 0:  # For Os
+                rowCount = oCountRows
+                columnCount = oCountColumns
+                diagonalCount = oCountDiagonals
+                character = "O"
+            else:  # For Xs
+                rowCount = xCountRows
+                columnCount = xCountColumns
+                diagonalCount = xCountDiagonals
+                character = "X"
+
+            # Counting characters in rows
+            for row in range(3):
+                for column in board[row]:
+                    if column == character:
+                        rowCount[row] += 1
+
+            # Counting characters in columns
+            for row in range(3):
+                for column in range(3):
+                    if board[column][row] == character:
+                        columnCount[row] += 1
+
+            # Counting characters in diagonals
+            for _ in range(2):  # 0 = left diagonal, 1 = right diagonal | loops through both
+                for coSet in diagonals[_]:
+                    if board[coSet[0]][coSet[1]] == character:
+                        diagonalCount[_] += 1
+
+            # Filling spaces
+
+            # Filling row if there's 2 Os
+            for row in range(3):  # Each row
+                if rowCount[row] == 2:  # If there's 2 Xs/Os and no spot has been filled yet
+                    for column in range(3):  # Each column of the row
+
+                        if board[row][column] == " ":  # If there's an empty space
+                            board[row][column] = "O"  # Occupy it
+                            coOrds = (row, column)  # Record move
+                            return True, coOrds  # Spot found
+
+            # Filling column if there's 2 Xs
+            for column in range(3):  # Each column
+                if columnCount[column] == 2:  # If there's 2 Xs/Os and no spot has been filled yet
+                    for row in range(3):  # Each row of the column
+
+                        if board[row][column] == " ":  # If there's an empty spot
+                            board[row][column] = "O"  # Occupy it
+                            coOrds = (row, column)  # Record move
+                            return True, coOrds  # Spot found
+
+            # Filling diagonal if there's 2 Os
+            for index in range(2):  # Selecting left diagonal (0) or right diagonal (1)
+
+                if diagonalCount[index] == 2:  # If there's 2 Xs/Os and we haven't found a spot
+                    for coSet in diagonals[index]:  # For coordinates in the selected diagonal
+
+                        if board[coSet[0]][coSet[1]] == " ":  # If there's an empty space
+                            board[coSet[0]][coSet[1]] = "O"  # Occupy it
+                            coOrds = (coSet[0], coSet[1])  # Record move
+                            return True, coOrds  # Spot found
+
+        return False, (0, 0)
+    
     # Last computer move variable
     global lastCompMove
 
@@ -220,7 +306,10 @@ def computer_move(diff, board):
     elif diff == "2":
 
         # Assuming no spot was selected
-        spotSelected = False
+        spotFound = False
+        
+        if not spotFound:
+            (spotFound, coOrds) = block_and_win()  # Checking for 2 Xs/Os in a row to block or win
 
         # Trying to find an open spot in the diagonal
         leftDiagonal = [(0, 0), (1, 1), (2, 2)]  # Left diagonal coordinates
@@ -229,19 +318,19 @@ def computer_move(diff, board):
 
         for _ in range(2):
 
-            if lastMove in diagonals[_] and not spotSelected:  # If the last move looks like a diagonal play
+            if lastMove in diagonals[_] and not spotFound:  # If the last move looks like a diagonal play
 
                 for spot in leftDiagonal:  # Occupying a remaining diagonal space
                     if board[spot[0]][spot[1]] == " ":  # Checking to make sure space is empty
                         board[spot[0]][spot[1]] = "O"  # Filling space
                         coOrds = spot  # Recording the final spot
-                        spotSelected = True  # Recording that a spot was chosen
+                        spotFound = True  # Recording that a spot was chosen
                         break
                     else:
-                        spotSelected = False
+                        spotFound = False
 
         # Diagonal spot not possible
-        if not spotSelected:
+        if not spotFound:
 
             # Selecting whether to occupy a space in the same row or column
             rowOrColumn = random.randint(1, 2)
@@ -260,7 +349,7 @@ def computer_move(diff, board):
                 try:
                     if board[row][column] == " ":
                         board[row][column] = "O"
-                        spotSelected = True
+                        spotFound = True
                         coOrds = (row, column)
                         break
                     else:
@@ -269,7 +358,7 @@ def computer_move(diff, board):
                     pass
 
         # Neither diagonal nor row/column worked
-        if not spotSelected:
+        if not spotFound:
             computer_move("1", board)
         else:
             # Printing results
@@ -277,7 +366,7 @@ def computer_move(diff, board):
             lastCompMove = coOrds  # Saving last computer move
             board_printer(board)
 
-    # Hard
+    # Impossible
     else:
 
         # The crucial first move
@@ -295,93 +384,7 @@ def computer_move(diff, board):
 
         # After the first move
         else:
-
-            # Checking for two Xs/Os in a line to block or get win
-            spotFound = False  # Assuming no spot found
-
-            # Arrays for O count
-            oCountRows = [0, 0, 0]
-            oCountColumns = [0, 0, 0]
-            oCountDiagonals = [0, 0]
-
-            # Arrays for X count
-            xCountRows = [0, 0, 0]
-            xCountColumns = [0, 0, 0]
-            xCountDiagonals = [0, 0]
-
-            # Diagonal coordinates
-            leftDiagonal = [(0, 0), (1, 1), (2, 2)]
-            rightDiagonal = [(0, 2), (1, 1), (2, 0)]
-            diagonals = [leftDiagonal, rightDiagonal]
-
-            # Actually counting Xs/Os
-
-            for _ in range(2):  # Starting to check for wins with Os, and then block the Xs as a second priority
-
-                if _ == 0:  # For Os
-                    rowCount = oCountRows
-                    columnCount = oCountColumns
-                    diagonalCount = oCountDiagonals
-                    character = "O"
-                else:  # For Xs
-                    rowCount = xCountRows
-                    columnCount = xCountColumns
-                    diagonalCount = xCountDiagonals
-                    character = "X"
-
-                # Counting characters in rows
-                for row in range(3):
-                    for column in board[row]:
-                        if column == character:
-                            rowCount[row] += 1
-
-                # Counting characters in columns
-                for row in range(3):
-                    for column in range(3):
-                        if board[column][row] == character:
-                            columnCount[row] += 1
-
-                # Counting characters in diagonals
-                for _ in range(2):  # 0 = left diagonal, 1 = right diagonal | loops through both
-                    for coSet in diagonals[_]:
-                        if board[coSet[0]][coSet[1]] == character:
-                            diagonalCount[_] += 1
-
-                # Filling spaces
-
-                # Filling row if there's 2 Os
-                for row in range(3):  # Each row
-                    if rowCount[row] == 2 and not spotFound:  # If there's 2 Xs/Os and no spot has been filled yet
-                        for column in range(3):  # Each column of the row
-
-                            if board[row][column] == " ":  # If there's an empty space
-                                board[row][column] = "O"  # Occupy it
-                                coOrds = (row, column)  # Record move
-                                spotFound = True  # Spot has been found
-                                break  # We're done
-
-                # Filling column if there's 2 Xs
-                for column in range(3):  # Each column
-                    if columnCount[column] == 2 and not spotFound:  # If there's 2 Xs/Os and no spot has been filled yet
-                        for row in range(3):  # Each row of the column
-
-                            if board[row][column] == " ":  # If there's an empty spot
-                                board[row][column] = "O"  # Occupy it
-                                coOrds = (row, column)  # Record move
-                                spotFound = True  # Spot has been found
-                                break  # We're done
-
-                # Filling diagonal if there's 2 Os
-                for index in range(2):  # Selecting left diagonal (0) or right diagonal (1)
-
-                    if diagonalCount[index] == 2 and not spotFound:  # If there's 2 Xs/Os and we haven't found a spot
-                        for coSet in diagonals[index]:  # For coordinates in the selected diagonal
-
-                            if board[coSet[0]][coSet[1]] == " ":  # If there's an empty space
-                                board[coSet[0]][coSet[1]] = "O"  # Occupy it
-                                coOrds = (coSet[0], coSet[1])  # Record move
-                                spotFound = True  # Spot has been found
-                                break  # We're done
+            (spotFound, coOrds) = block_and_win()  # Check if 2 Xs/Os in a row to block or win
 
         if not spotFound:  # If a move still isn't made, it checks to do a corner block
 

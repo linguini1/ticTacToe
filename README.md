@@ -29,12 +29,22 @@ tally is shown, and the "ultimate winner" announced.
 The computer randomly selects a spot on the board and fills it.
 
 <h4>Medium Mode</h4>
-The computer will look at the player's last move, and place an O in the same row or column as the last X. It randomly 
+The computer checks for 2 Xs in a line. If there are any, it places an O in the remaining space to block them. If there
+are two Os in a row, the computer will place an O in the remaining space and take the win.
+
+<!-- language: lang-none -->
+    |   |   | O |  <-- Computer's first move                | A | O | O |  A: Computer's third move,
+    -------------                                           -------------  completing the row
+    | A | X | X |  A: Computer's second move,               |   | X |   | 
+    -------------  blocking the row                         -------------
+    |   |   |   |                                           |   | X | X |
+
+Then the computer will look at the player's last move, and place an O in the same row or column as the last X. It randomly 
 selects whether to place an O in the column or the row. 
 
 If it's not possible to do either, the algorithm will recursively call the easy difficulty mode to make a move.
 
-<h4>Hard Mode</h4>
+<h4>Impossible Mode</h4>
 The computer will take the center space on its first move, and if the center is already occupied, it takes a corner space.
 
 Following the first move, the algorithm has a priority list of moves. First it checks for two Xs in a row, column, or diagonal
