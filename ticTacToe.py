@@ -31,10 +31,10 @@ while True:
         # Difficulty selection
         while True:
 
-            difficulty = input("Select easy (1), medium (2) or impossible (3) mode: ")
+            difficulty = input("Select easy (1), medium (2), hard (3) or impossible (4) mode: ")
 
-            if difficulty not in ["1", "2", "3"]:  # Must be valid option
-                print("You must select option 1, 2 or 3.")
+            if difficulty not in ["1", "2", "3", "4"]:  # Must be valid option
+                print("You must select option 1, 2, 3 or 4.")
 
             else:
                 break
@@ -366,25 +366,10 @@ def computer_move(diff, board):
             lastCompMove = coOrds  # Saving last computer move
             board_printer(board)
 
-    # Impossible
-    else:
+    # Hard
+    elif diff == "3":
 
-        # The crucial first move
-        if maxMoves == 8:
-
-            if lastMove == (1, 1):  # If center space is chosen, pick a corner
-                coOrds = (0, 2)
-                board[0][2] = "O"
-                spotFound = True
-
-            else:  # If any other space is chosen, pick center
-                coOrds = (1, 1)
-                board[1][1] = "O"
-                spotFound = True
-
-        # After the first move
-        else:
-            (spotFound, coOrds) = block_and_win()  # Check if 2 Xs/Os in a row to block or win
+        (spotFound, coOrds) = block_and_win()  # Check if 2 Xs/Os in a row to block or win
 
         if not spotFound:  # If a move still isn't made, it checks to do a corner block
 
@@ -458,6 +443,29 @@ def computer_move(diff, board):
             print(f"The Computer selected the spot {coOrds[0] + 1}{coOrds[1] + 1}.")
             lastCompMove = coOrds  # Saving last computer move
             board_printer(board)
+
+    # Impossible
+    else:
+
+        # The crucial first move
+        if maxMoves == 8:
+
+            if lastMove == (1, 1):  # If center space is chosen, pick a corner
+                coOrds = (0, 2)
+                board[0][2] = "O"
+
+            else:  # If any other space is chosen, pick center
+                coOrds = (1, 1)
+                board[1][1] = "O"
+
+            # Printing results
+            print(f"The Computer selected the spot {coOrds[0] + 1}{coOrds[1] + 1}.")
+            lastCompMove = coOrds  # Saving last computer move
+            board_printer(board)
+
+        # After the first move
+        else:
+            computer_move("3", board)  # Calling the hard difficulty
 
 
 # Logic for detecting win

@@ -4,31 +4,32 @@
 There are two modes to this game: PvP and PvC. You can choose between these modes at the beginning of the game.
 
 If you select PvP, you and the other player will share the keyboard to make moves. If you select PvC, there are three
-game modes to choose from: easy, medium and hard. Player One will always use *X* and Player Two or The Computer will always
-use *O*.
+game modes to choose from: easy, medium and hard. Player One will always use **X** and Player Two or The Computer will 
+always use **O**.
 
-All the squares on the board are accessed by number coordinates. The first row being 1, second being 2 and third being 3. 
-The columns are indexed in the same way, from 1-3. Rows are indexed from top to bottom, columns indexed from left to right.
-You must input your move in the format [row][column]. There will be an example displayed at the begging of the game.
+All the squares on the board are accessed by number coordinates. The first row being '1', second being '2' and third 
+being '3'. The columns are indexed in the same way, from 1-3. Rows are indexed from top to bottom, columns indexed from
+left to right. You must input your move in the format [row][column]. There will be an example displayed at the begging 
+of the game.
 
-The rounds function as a competition of "best of", where one player only has to win the majority of the rounds to take the
-ultimate victory. The default mode uses a best of 3 game format, but you can also set the number of rounds you want to play at 
-the game's start. You can only choose an odd number of rounds in order to comply with the "best of" format.
+The rounds function as a competition of "best of", where one player only has to win the majority of the rounds to take 
+the ultimate victory. The default mode uses a best of 3 game format, but you can also set the number of rounds you want 
+to play at the game's start. You can only choose an odd number of rounds in order to comply with the "best of" format.
 
 ## Display
-After each round, the program will announce the winner and provide a short loading animation for the user to study the board.
-This is because there's no strikethrough animation when a player wins, so the winning line may not be as clear, especially
-when the computer is victorious because its plays are instant.
+After each round, the program will announce the winner and provide a short loading animation for the user to study the 
+board. This is because there's no strikethrough animation when a player wins, so the winning line may not be as clear, 
+especially when the computer is victorious because its plays are instant.
 
-After the pause, a score update is displayed before starting the next round. After all the rounds are completed, a final
-tally is shown, and the "ultimate winner" announced.
+After the pause, a score update is displayed before starting the next round. After all the rounds are completed, a 
+final tally is shown, and the "ultimate winner" announced.
 
 ## How it works
 
-<h4>Easy Mode</h4>
+<h3>Easy Mode</h3>
 The computer randomly selects a spot on the board and fills it.
 
-<h4>Medium Mode</h4>
+<h3>Medium Mode</h3>
 The computer checks for 2 Xs in a line. If there are any, it places an O in the remaining space to block them. If there
 are two Os in a row, the computer will place an O in the remaining space and take the win.
 
@@ -39,17 +40,15 @@ are two Os in a row, the computer will place an O in the remaining space and tak
     -------------  blocking the row                         -------------
     |   |   |   |                                           |   | X | X |
 
-Then the computer will look at the player's last move, and place an O in the same row or column as the last X. It randomly 
-selects whether to place an O in the column or the row. 
+Then the computer will look at the player's last move, and place an O in the same row or column as the last X. It 
+randomly selects whether to place an O in the column or the row. 
 
 If it's not possible to do either, the algorithm will recursively call the easy difficulty mode to make a move.
 
-<h4>Impossible Mode</h4>
-The computer will take the center space on its first move, and if the center is already occupied, it takes a corner space.
-
-Following the first move, the algorithm has a priority list of moves. First it checks for two Xs in a row, column, or diagonal
-and then places an O in the remaining space to prevent a win. If there are two Os in a row, column, or diagonal, it will
-place another O in the remaining space to take a win.
+<h3>Hard Mode</h3>
+The algorithm has a priority list of moves. First it checks for two Xs in a row, column, or diagonal and then places an 
+O in the remaining space to prevent a win. If there are two Os in a row, column, or diagonal, it will place another O 
+in the remaining space to take a win.
 
 If none of the above scenarios are true, the computer will check to see if two lines with an X in them intersect at an
 empty corner, and then fills the corner with an O. This prevents a move where the player places their Xs in an L-shape,
@@ -106,3 +105,14 @@ vertical). Here are the same two layouts but with Xs filled in, and the final mo
                                                               O would be placed here
 If none of the above scenarios are in play, the algorithm will recursively call the medium difficulty mode to make a
 decision.
+
+<h3>Impossible Mode</h3>
+The computer will take the center space on its first move, and if the center is already occupied, it takes a corner 
+space. It then recursively calls the hard algorithm.
+
+<!-- language: lang-none -->
+    |   |   | X |  X starts in the corner, so               |   |   | O |  X starts in the center, so
+    -------------  O takes the center.                      -------------  O takes the top right corner.
+    |   | O |   |                                           |   | X |   |
+    -------------                                           -------------
+    |   |   |   |                                           |   |   |   |
